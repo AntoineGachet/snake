@@ -126,8 +126,9 @@ while run:
     if check_apple_eaten(apple_pos):
         apple_pos = new_apple()
     show_snake(screen, snake, CASE_DIM, GREEN)
-    run = wall_coll(snake)
-    run = self_coll(snake)
+    run = self_coll(snake) + wall_coll(snake)
+    if run < 2:
+        run = False
 
     pg.display.update()
 
