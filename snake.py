@@ -41,7 +41,7 @@ set_background(WHITE, BLACK, CASE_DIM)
 
 def wall_coll(snake):
     head = snake[0]
-    if (head[0] < 0) or (head[0] >= 30) or (head[1] < 0) or (head[1] >= 30):
+    if (head[0] < 0) or (head[0] >= 29) or (head[1] < 0) or (head[1] >= 29):
         return False
     return True
 
