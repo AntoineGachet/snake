@@ -11,8 +11,10 @@ IPS = 5
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+
 counter = 0
-snake_pos = [
+snake = [
     (14, 15),
     (15, 15),
     (16, 15),
@@ -20,6 +22,7 @@ snake_pos = [
     (18, 15),
 ]
 dir = (-1, 0)
+apple_pos = (randint(0, 29), randint(0, 29))
 run = True
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -36,33 +39,54 @@ def set_background(white, black, dim):
 
 set_background(WHITE, BLACK, CASE_DIM)
 
-def wall_coll(snake_pos):
-    head = snake_pos[0]
+def wall_coll(snake):
+    head = snake[0]
     if (head[0] < 0) or (head[0] >= 30) or (head[1] < 0) or (head[1] >= 30):
         return False
     return True
 
-def self_coll(snake_pos):
-    for i in range(1, len(snake_pos)):
-        if snake_pos[0] == snake_pos[i]:
+def self_coll(snake):
+    for i in range(1, len(snake)):
+        if snake[0] == snake[i]:
             return False
     return True
 
-def show_snake(screen, snake_pos, dim, color):
-    for i in range(len(snake_pos)-1):
-        snake = pg.Rect(snake_pos[i][0]*dim, snake_pos[i][1]*dim, dim, dim)
-        pg.draw.rect(screen, color, snake)
+def show_snake(screen, snake, dim, color):
+    for i in range(len(snake)-1):
+        snake_ = pg.Rect(snake[i][0]*dim, snake[i][1]*dim, dim, dim)
+        pg.draw.rect(screen, color, snake_)
 
-def update_snake(snake_pos, dir):
-    snake_pos.insert(0, tuple(map(lambda i, j: i+j, dir, snake_pos[0])))
-    snake_pos.pop(-1)
-    return snake_pos
+def update_snake(snake, dir):
+    snake.insert(0, tuple(map(lambda i, j: i+j, dir, snake[0])))
+    snake.pop(-1)
+    return snake
 
-def update_case(screen, snake_pos, dim=CASE_DIM, white=WHITE, black=BLACK):
-    switched_case = snake_pos[-1]
+def update_case(screen, snake, dim=CASE_DIM, white=WHITE, black=BLACK):
+    switched_case = snake[-1]
     rect = pg.Rect(switched_case[0]*dim, switched_case[1]*dim, dim, dim)
-    color = white if (snake_pos[-1][0]+snake_pos[-1][1])%2==0 else black
+    color = white if (snake[-1][0]+snake[-1][1])%2==0 else black
     pg.draw.rect(screen, color, rect)
+
+def new_apple():
+    new_pos = (randint(0,29), randint(0, 29))
+    return new_pos
+
+def display_apple(apple_pos, dim=CASE_DIM, red=RED, screen=screen):
+    apple = pg.Rect(apple_pos[0]*dim, apple_pos[1]*dim, dim, dim)
+    pg.draw.rect(screen, red, apple)
+
+def check_apple_eaten(apple_pos=apple_pos, snake=snake):
+    if snake[0] == apple_pos:
+
+        if snake[-1][0] != snake[-2][0]:
+            diff = snake[-2][0] - snake[-1][0]
+            snake.append((snake[-1][0]-diff,snake[-1][1]))
+        
+        if snake[-1][1] != snake[-2][1]:
+            diff = snake[-2][1] - snake[-1][1]
+            snake.append((snake[-1][0],snake[-1][1]-diff))
+        return True
+    return False
 
 
 while run:
@@ -96,11 +120,14 @@ while run:
                     continue
                 dir = (1, 0)
 
-    update_case(screen, snake_pos)
-    update_snake(snake_pos,dir)
-    show_snake(screen, snake_pos, CASE_DIM, GREEN)
-    run = wall_coll(snake_pos)
-    run = self_coll(snake_pos)
+    display_apple(apple_pos)
+    update_case(screen, snake)
+    update_snake(snake,dir)
+    if check_apple_eaten(apple_pos):
+        apple_pos = new_apple()
+    show_snake(screen, snake, CASE_DIM, GREEN)
+    run = wall_coll(snake)
+    run = self_coll(snake)
 
     pg.display.update()
 
