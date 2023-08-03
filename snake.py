@@ -17,6 +17,7 @@ snake_pos = [
     (15, 15),
     (16, 15),
     (17, 15),
+    (18, 15),
 ]
 dir = (-1, 0)
 run = True
@@ -39,6 +40,12 @@ def wall_coll(snake_pos):
     head = snake_pos[0]
     if (head[0] < 0) or (head[0] >= 30) or (head[1] < 0) or (head[1] >= 30):
         return False
+    return True
+
+def self_coll(snake_pos):
+    for i in range(1, len(snake_pos)):
+        if snake_pos[0] == snake_pos[i]:
+            return False
     return True
 
 def show_snake(screen, snake_pos, dim, color):
@@ -93,6 +100,7 @@ while run:
     update_snake(snake_pos,dir)
     show_snake(screen, snake_pos, CASE_DIM, GREEN)
     run = wall_coll(snake_pos)
+    run = self_coll(snake_pos)
 
     pg.display.update()
 
