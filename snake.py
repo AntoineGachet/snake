@@ -11,12 +11,12 @@ IPS = 5
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
-
+counter = 0
 snake_pos = [
-    (10, 15),
-    (11, 15),
-    (12, 15),
-    (13, 15),
+    (14, 15),
+    (15, 15),
+    (16, 15),
+    (17, 15),
 ]
 dir = (-1, 0)
 run = True
@@ -35,17 +35,23 @@ def set_background(white, black, dim):
 
 set_background(WHITE, BLACK, CASE_DIM)
 
-def init_snake(screen, snake_pos, dim, color):
+def wall_coll(snake_pos):
+    head = snake_pos[0]
+    if (head[0] < 0) or (head[0] >= 30) or (head[1] < 0) or (head[1] >= 30):
+        return False
+    return True
+
+def show_snake(screen, snake_pos, dim, color):
     for i in range(len(snake_pos)-1):
         snake = pg.Rect(snake_pos[i][0]*dim, snake_pos[i][1]*dim, dim, dim)
         pg.draw.rect(screen, color, snake)
 
-def update_snake(screen, snake_pos, dim, color, dir):
+def update_snake(snake_pos, dir):
     snake_pos.insert(0, tuple(map(lambda i, j: i+j, dir, snake_pos[0])))
     snake_pos.pop(-1)
     return snake_pos
 
-def init_case(screen, snake_pos, dim=CASE_DIM, white=WHITE, black=BLACK):
+def update_case(screen, snake_pos, dim=CASE_DIM, white=WHITE, black=BLACK):
     switched_case = snake_pos[-1]
     rect = pg.Rect(switched_case[0]*dim, switched_case[1]*dim, dim, dim)
     color = white if (snake_pos[-1][0]+snake_pos[-1][1])%2==0 else black
@@ -53,7 +59,7 @@ def init_case(screen, snake_pos, dim=CASE_DIM, white=WHITE, black=BLACK):
 
 
 while run:
-
+    counter += 1
     clock.tick(IPS)
 
     for event in pg.event.get():
@@ -66,20 +72,27 @@ while run:
 
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_UP:
+                if dir == (0, 1):
+                    continue
                 dir = (0, -1)
             elif event.key == pg.K_DOWN:
+                if dir == (0, -1):
+                    continue
                 dir = (0, 1)
 
             elif event.key == pg.K_LEFT:
+                if dir == (1,0):
+                    continue
                 dir = (-1, 0)
             elif event.key == pg.K_RIGHT:
+                if dir == (-1, 0):
+                    continue
                 dir = (1, 0)
 
-    if dir != (0, 0):
-        init_case(screen, snake_pos)
-    update_snake(screen, snake_pos, CASE_DIM, GREEN, dir)
-    init_snake(screen, snake_pos, CASE_DIM, GREEN)
-
+    update_case(screen, snake_pos)
+    update_snake(snake_pos,dir)
+    show_snake(screen, snake_pos, CASE_DIM, GREEN)
+    run = wall_coll(snake_pos)
 
     pg.display.update()
 
