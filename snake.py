@@ -1,5 +1,5 @@
 import pygame as pg
-from random import randint
+from random import choice
 
 pg.init()
 
@@ -22,7 +22,6 @@ snake = [
     (18, 15),
 ]
 dir = (-1, 0)
-apple_pos = (randint(0, 29), randint(0, 29))
 run = True
 
 screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -38,6 +37,17 @@ def set_background(white, black, dim):
                 pg.draw.rect(screen, black, rect)
 
 set_background(WHITE, BLACK, CASE_DIM)
+
+def available_case(snake):
+    available = [(u, v) for u in range(30) for v in range(30)]
+    for i in snake:
+        if i in available:
+            available.remove(i)
+    return available
+
+available = available_case(snake)
+print(available)
+apple_pos = choice(available)
 
 def wall_coll(snake):
     head = snake[0]
@@ -67,8 +77,8 @@ def update_case(screen, snake, dim=CASE_DIM, white=WHITE, black=BLACK):
     color = white if (snake[-1][0]+snake[-1][1])%2==0 else black
     pg.draw.rect(screen, color, rect)
 
-def new_apple():
-    new_pos = (randint(0,29), randint(0, 29))
+def new_apple(available=available):
+    new_pos = choice(available)
     return new_pos
 
 def display_apple(apple_pos, dim=CASE_DIM, red=RED, screen=screen):
